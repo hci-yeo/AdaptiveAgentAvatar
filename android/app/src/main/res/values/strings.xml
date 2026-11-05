@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI Avatar</string>
+    <string name="service_label">AI Avatar</string>
+    <string name="service_description">Shows an animated expert attached to the input box of your AI chat app (ChatGPT, Claude, Doubao, Yuanbao, Qianwen, DeepSeek, Kimi) who changes to match the topic of your question. It reads only those apps\' screens (your question, whether the AI is answering, and where the chat box is). Nothing is saved or sent anywhere: the topic is picked on your phone, and the app has no internet access.\n\n依靠在 AI 聊天应用（ChatGPT、Claude、豆包、元宝、千问、DeepSeek、Kimi）的输入框旁显示一位会根据你提问的话题切换的动画专家。只读取这些应用的屏幕（你的问题、AI 是否在回答、输入框的位置）。不会保存或发送任何内容：话题在手机上判断，本应用没有联网权限。</string>
+</resources>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- The rainbow chat box for Claude: Claude's page can't be changed, so the same rainbow edge and glow as
+     mods/15-ring.js are drawn in a see-through window of the pet program that ignores the mouse, laid
+     over Claude's chat box by the window helper (pet\claude-dock.cs). The window is the box plus
+     --p of room for the glow on every side. Only our own script; nothing else can load. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'">
+<title>Rainbow chat box</title>
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+  #ring {
+    position: absolute; inset: var(--p); pointer-events: none; border-radius: var(--r, 18px);
+    --p: 38px;        /* room for the glow outside the box: matches RING_PAD in claude-dock.cs */
+    --halo: .20; --edge: .75;   /* glow: .30 was a bit much over Claude */
+  }
+  #ring.dark { --halo: .38; --band: 8px; }   /* Claude's dark page is near-black: a stronger, wider glow */
+  #ring.answering { --edge: .95; }
+  #ring .halo, #ring .band, #ring .edge {
+    position: absolute;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  #ring .band, #ring .edge {
+    background: conic-gradient(from var(--a, 0deg), #ff7189, #ffb249, #ffde3b, #64e3ac, #58d0ff, #9581ff, #f9519d, #ff7189) border-box;
+  }
+  #ring .halo {
+    inset: calc(-1 * var(--p)); padding: var(--p); border-radius: calc(var(--r, 18px) + var(--p));
+    filter: blur(10px); opacity: var(--halo); transition: opacity .5s ease;
+  }
+  #ring .band {
+    inset: calc(var(--p) - var(--band, 7px)); padding: var(--band, 7px); border-radius: calc(var(--r, 18px) + var(--band, 7px));
+  }
+  #ring .edge {
+    inset: -1.75px; padding: 1.75px; border-radius: calc(var(--r, 18px) + 1.75px);
+    opacity: var(--edge); transition: opacity .5s ease;
+  }
+  #ring.answering .halo { transition: none; }
+</style>
+</head>
+<body>
+<div id="ring" aria-hidden="true"><div class="halo"><div class="band"></div></div><div class="edge"></div></div>
+<script src="ring.js"></script>
+</body>
+</html>

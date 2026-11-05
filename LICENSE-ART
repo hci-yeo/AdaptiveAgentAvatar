@@ -1,0 +1,31 @@
+Adaptive Agent Avatar artwork
+Copyright (c) 2026 Hui-Shyong Yeo
+
+The artwork in this project is licensed under the Creative Commons
+Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
+
+  Summary: https://creativecommons.org/licenses/by-nc/4.0/
+  Full legal text: https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+You may share and adapt the artwork, as long as you:
+  - give credit ("Adaptive Agent Avatar by Hui-Shyong Yeo"), link to the
+    license, and say if you changed it; and
+  - do not use it for commercial purposes.
+The summary above is not a substitute for the full legal text.
+
+What counts as the artwork:
+  - mods/assets/        the expert characters, outfits and fish-girl images
+  - mods/media/         the walk-in, walk-out and idle animations
+  - pet/tray-icons/     the tray and shortcut icons
+  - integrations/deepseek-harness/icon.webp
+  - android/app/src/main/res/mipmap-*/   the Android app icons
+  - the same files wherever a build copies them (the browser extension,
+    the Android app and the release zips)
+
+docs/images/ holds screenshots and a chart for the README. The avatars in
+them are covered by this license. The chat apps shown in the screenshots
+belong to their owners, and the chart reports results from our paper
+(Qin, Yeo and Wu, BESC 2026).
+
+Everything else in this project (the code) is under the MIT License: see
+LICENSE.

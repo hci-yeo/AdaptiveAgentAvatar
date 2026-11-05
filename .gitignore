@@ -1,0 +1,43 @@
+# Installed or downloaded on first run (and shipped in the ready-to-run zip on the Releases page)
+node_modules/
+pet/node_modules/
+node/
+models/
+
+# Made while running
+pet/build/
+pet/tray-log.txt
+mods-log.txt
+mods-log.previous.txt
+.pet.json
+.watcher.pid
+.watcher.stop
+.tray.stop
+.mods-off
+.no-chatbox
+.claude-chat-mod
+integrations/deepseek-harness/.pet.json
+
+# Built from the source here
+# DeepSeek Harness plugin, from mods/ by integrations/deepseek-harness/build.mjs (tools/dsh-plugin.mjs builds it if missing)
+integrations/deepseek-harness/client.js
+integrations/deepseek-harness/.client.js.tmp.mjs
+# Browser extension (browser-extension/build.mjs)
+browser-extension/build/
+browser-extension/vendor/
+# Release zips
+*.zip
+
+# Android app: built and generated files (android/build-assets.mjs makes assets/web from the extension build)
+android/.gradle/
+android/.kotlin/
+android/build/
+android/app/build/
+android/local.properties
+android/app/src/main/assets/web/
+
+# macOS Finder files
+.DS_Store
+
+# macOS app build output (mac/build-app.sh)
+dist/

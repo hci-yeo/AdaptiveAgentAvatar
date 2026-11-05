@@ -1,0 +1,15 @@
+{
+  "name": "adaptive-agent-avatar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An avatar for AI chat apps (Doubao, Codex, Yuanbao, Qianwen, Qwen, Claude, Kimi, DeepSeek Harness, ChatGPT in the browser) that becomes an expert matching the topic of your question, picked by a small AI model on your own PC.",
+  "license": "MIT",
+  "author": "Hui-Shyong Yeo",
+  "repository": { "type": "git", "url": "https://github.com/hci-yeo/AdaptiveAgentAvatar.git" },
+  "scripts": {
+    "postinstall": "node tools/trim-deps.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.2"
+  }
+}

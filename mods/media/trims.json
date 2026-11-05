@@ -1,0 +1,290 @@
+{
+ "artist_in.webm": {
+  "start": 0.958
+ },
+ "artist_out.webm": {
+  "end": 2.458
+ },
+ "astronaut_in.webm": {
+  "start": 1.0
+ },
+ "astronaut_out.webm": {
+  "end": 2.625
+ },
+ "athlete_in.webm": {
+  "start": 1.583
+ },
+ "athlete_out.webm": {
+  "end": 2.542
+ },
+ "business_in.webm": {
+  "start": 1.292
+ },
+ "business_out.webm": {
+  "end": 2.583
+ },
+ "casual_in.webm": {
+  "start": 1.75
+ },
+ "casual_out.webm": {
+  "end": 1.958
+ },
+ "chef_in.webm": {
+  "start": 0.917
+ },
+ "chef_out.webm": {
+  "end": 2.375
+ },
+ "doctor_in.webm": {
+  "start": 1.083
+ },
+ "doctor_out.webm": {
+  "end": 2.458
+ },
+ "engineer_in.webm": {
+  "start": 1.542
+ },
+ "engineer_out.webm": {
+  "end": 2.625
+ },
+ "explorer_in.webm": {
+  "start": 1.458
+ },
+ "explorer_out.webm": {
+  "end": 2.125
+ },
+ "fish_artist_in.webm": {
+  "start": 0.292
+ },
+ "fish_artist_out.webm": {
+  "end": 3.708
+ },
+ "fish_astronaut_in.webm": {
+  "start": 0.083
+ },
+ "fish_astronaut_out.webm": {
+  "end": 3.917
+ },
+ "fish_athlete_in.webm": {
+  "start": 0.542
+ },
+ "fish_athlete_out.webm": {
+  "end": 3.458
+ },
+ "fish_business_in.webm": {
+  "start": 0.75
+ },
+ "fish_business_out.webm": {
+  "end": 3.25
+ },
+ "fish_casual_in.webm": {
+  "start": 0.042
+ },
+ "fish_casual_out.webm": {
+  "end": 3.958
+ },
+ "fish_chef_in.webm": {
+  "start": 0.958
+ },
+ "fish_chef_out.webm": {
+  "end": 3.042
+ },
+ "fish_doctor_in.webm": {
+  "start": 0.417
+ },
+ "fish_doctor_out.webm": {
+  "end": 3.583
+ },
+ "fish_engineer_in.webm": {
+  "start": 0.375
+ },
+ "fish_engineer_out.webm": {
+  "end": 3.625
+ },
+ "fish_explorer_in.webm": {
+  "start": 0.5
+ },
+ "fish_explorer_out.webm": {
+  "end": 3.5
+ },
+ "fish_gamer_in.webm": {
+  "start": 0.208
+ },
+ "fish_gamer_out.webm": {
+  "end": 3.792
+ },
+ "fish_gardener_in.webm": {
+  "start": 0.667
+ },
+ "fish_gardener_out.webm": {
+  "end": 3.333
+ },
+ "fish_lawyer_in.webm": {
+  "start": 0.5
+ },
+ "fish_lawyer_out.webm": {
+  "end": 3.5
+ },
+ "fish_musician_in.webm": {
+  "start": 0.583
+ },
+ "fish_musician_out.webm": {
+  "end": 3.417
+ },
+ "fish_programmer_in.webm": {
+  "start": 1.042
+ },
+ "fish_programmer_out.webm": {
+  "end": 2.958
+ },
+ "fish_scientist_in.webm": {
+  "start": 1.333
+ },
+ "fish_scientist_out.webm": {
+  "end": 2.667
+ },
+ "fish_teacher_in.webm": {
+  "start": 0.542
+ },
+ "fish_teacher_out.webm": {
+  "end": 3.458
+ },
+ "gamer_in.webm": {
+  "start": 1.417
+ },
+ "gamer_out.webm": {
+  "end": 3.125
+ },
+ "gardener_in.webm": {
+  "start": 0.958
+ },
+ "gardener_out.webm": {
+  "end": 2.667
+ },
+ "lawyer_in.webm": {
+  "start": 1.083
+ },
+ "lawyer_out.webm": {
+  "end": 2.833
+ },
+ "musician_in.webm": {
+  "start": 1.083
+ },
+ "musician_out.webm": {
+  "end": 2.958
+ },
+ "programmer_in.webm": {
+  "start": 0.667
+ },
+ "programmer_out.webm": {
+  "end": 2.167
+ },
+ "scientist_in.webm": {
+  "start": 1.042
+ },
+ "scientist_out.webm": {
+  "end": 3.083
+ },
+ "single_artist_in.webm": {
+  "start": 0.167
+ },
+ "single_artist_out.webm": {
+  "end": 3.833
+ },
+ "single_astronaut_in.webm": {
+  "start": 0.25
+ },
+ "single_astronaut_out.webm": {
+  "end": 3.75
+ },
+ "single_athlete_in.webm": {
+  "start": 0.083
+ },
+ "single_athlete_out.webm": {
+  "end": 3.917
+ },
+ "single_business_in.webm": {
+  "start": 0.667
+ },
+ "single_business_out.webm": {
+  "end": 3.333
+ },
+ "single_casual_in.webm": {
+  "start": 0.542
+ },
+ "single_casual_out.webm": {
+  "end": 3.458
+ },
+ "single_chef_in.webm": {
+  "start": 0.292
+ },
+ "single_chef_out.webm": {
+  "end": 3.708
+ },
+ "single_doctor_in.webm": {
+  "start": 0.5
+ },
+ "single_doctor_out.webm": {
+  "end": 3.5
+ },
+ "single_engineer_in.webm": {
+  "start": 0.25
+ },
+ "single_engineer_out.webm": {
+  "end": 3.75
+ },
+ "single_explorer_in.webm": {
+  "start": 0.125
+ },
+ "single_explorer_out.webm": {
+  "end": 3.875
+ },
+ "single_gamer_in.webm": {
+  "start": 0.833
+ },
+ "single_gamer_out.webm": {
+  "end": 3.167
+ },
+ "single_gardener_in.webm": {
+  "start": 0.417
+ },
+ "single_gardener_out.webm": {
+  "end": 3.583
+ },
+ "single_lawyer_in.webm": {
+  "start": 0.042
+ },
+ "single_lawyer_out.webm": {
+  "end": 3.958
+ },
+ "single_musician_in.webm": {
+  "start": 0.625
+ },
+ "single_musician_out.webm": {
+  "end": 3.375
+ },
+ "single_programmer_in.webm": {
+  "start": 0.583
+ },
+ "single_programmer_out.webm": {
+  "end": 3.417
+ },
+ "single_scientist_in.webm": {
+  "start": 0.208
+ },
+ "single_scientist_out.webm": {
+  "end": 3.792
+ },
+ "single_teacher_in.webm": {
+  "start": 0.458
+ },
+ "single_teacher_out.webm": {
+  "end": 3.542
+ },
+ "teacher_in.webm": {
+  "start": 1.083
+ },
+ "teacher_out.webm": {
+  "end": 2.5
+ }
+}

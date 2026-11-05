@@ -1,0 +1,11 @@
+{
+  "name": "doubao-mods-pet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pet mode: the avatar as a small see-through window on the desktop (Electron). Optional; installed on first use.",
+  "main": "main.js",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "45.0.0"
+  }
+}

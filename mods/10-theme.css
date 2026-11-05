@@ -1,0 +1,31 @@
+/* Theme mod: a rainbow greeting on the new-chat page, in Doubao, Codex and Yuanbao (the same
+   rainbow as the chat box ring, 15-ring.js).
+   This file goes to every app; each rule names one app's own elements, so it matches only there.
+   Selectors use the apps' data- attributes and ids where they have them, since their class names
+   are hashed per build (Doubao "panel-fvxXfj", Yuanbao "index-module-scss-module__RpWh2G__title"):
+   Yuanbao has none here, so its rules match only the readable part of the class name.
+   The avatar menu's "Rainbow chat box & greeting" switch turns it off with the chat box ring: 15-ring.js then
+   marks <html> with data-doubao-mods-rainbow-off, and every rule here skips such a page. */
+
+/* ---- The greeting ("有什么我能帮你的吗？", "How can I help?", Yuanbao's typed-out title) ----
+   Darker yellow and green than the ring's, so the words stay readable on white. */
+html:not([data-doubao-mods-rainbow-off]) #flow-chat-guidance-page .mb-28,                         /* Doubao */
+html:not([data-doubao-mods-rainbow-off]) span[data-headline],                                     /* Codex, older versions */
+/* Codex 26.10: "What should we build?" is a span in a large heading (div.heading-xl) on the home page */
+html:not([data-doubao-mods-rainbow-off]) [class*="home-composer-layout"] .heading-xl > span,
+html:not([data-doubao-mods-rainbow-off]) .heading-xl[data-feature] > span,
+html:not([data-doubao-mods-rainbow-off]) [class*="landingChatGuidewrap"] [class*="__title"] {     /* Yuanbao */
+  background: linear-gradient(90deg, #ff4d6d, #ff8a1c, #e0a800, #22b573, #1fa8e0, #7b61ff, #f72585);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+}
+/* Yuanbao types its title out one letter at a time, each in its own span: they show the
+   rainbow of the title behind them. */
+html:not([data-doubao-mods-rainbow-off]) [class*="landingChatGuidewrap"] [class*="__title"] * {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+}
+
+/* (A faint rainbow tint on the left sidebars was tried and removed: the sidebars stay plain.) */

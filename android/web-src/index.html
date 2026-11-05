@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- The avatar's floating window over ChatGPT. The page is 320 x 340 (the desktop pet's size); the
+     app scales it to the window. Only our own files (served from inside the app), no internet. -->
+<meta name="viewport" content="width=320, user-scalable=no">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob:; media-src blob:; connect-src 'self'; worker-src 'self' blob:">
+<title>Avatar</title>
+<style>html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }</style>
+</head>
+<body>
+<!-- rules.js: the topic rule and keyword lists (topic-rule.mjs, topics.mjs).
+     glue.js: what the desktop pet's window gets from its program, here from the Android app.
+     payload.js: the avatar itself (mods/30-avatar.js, pet mode), built by build-assets.mjs.
+     model.mjs: the topic model (EmbeddingGemma), loaded after she has appeared. -->
+<script src="rules.js"></script>
+<script src="glue.js"></script>
+<script src="payload.js"></script>
+<script type="module" src="model.mjs"></script>
+</body>
+</html>

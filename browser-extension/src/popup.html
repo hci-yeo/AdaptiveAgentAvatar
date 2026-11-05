@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<meta charset="utf-8">
+<title>Adaptive Agent Avatar</title>
+<style>
+  :root { color-scheme: light dark; --bg: #fff; --text: #1d1d1f; --muted: #6b6a73; --line: #e6e4ee; --accent: #6b4fd8; --accent-text: #fff; --soft: #f4f2fb; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1d1c22; --text: #ecebf0; --muted: #a5a3ad; --line: #34323b; --accent: #a594f9; --accent-text: #18171c; --soft: #2a2833; } }
+  body { margin: 0; width: 300px; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif; }
+  main { padding: 14px 16px 16px; }
+  h1 { font-size: 14px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  h1 img { width: 22px; height: 22px; border-radius: 50%; }
+  .site { font-weight: 600; word-break: break-all; }
+  p { margin: 0 0 10px; color: var(--muted); }
+  button { display: block; width: 100%; margin-top: 8px; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--soft); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; text-align: center; }
+  button.main { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  button:hover { filter: brightness(1.05); }
+  button[hidden] { display: none; }
+  .note { font-size: 12px; margin-top: 10px; }
+</style>
+<main>
+  <h1><img src="icons/icon32.png" alt="">Adaptive Agent Avatar</h1>
+  <p id="status"></p>
+  <button id="add" class="main" hidden></button>
+  <button id="pick" hidden></button>
+  <button id="unpick" hidden></button>
+  <button id="remove" hidden></button>
+  <p id="note" class="note"></p>
+</main>
+<script src="popup.js"></script>
+</html>

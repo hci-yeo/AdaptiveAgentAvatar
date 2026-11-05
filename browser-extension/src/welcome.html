@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adaptive Agent Avatar</title>
+<link rel="icon" href="icons/icon32.png">
+<style>
+  :root { color-scheme: light dark; --bg: #f6f5f2; --card: #fff; --text: #1d1d1f; --muted: #5f6368; --line: #e3e1dc; --accent: #6b4fd8; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #18171c; --card: #222128; --text: #ecebf0; --muted: #a5a3ad; --line: #34323b; --accent: #a594f9; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif; }
+  main { max-width: 560px; margin: 12vh auto; padding: 0 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
+  h1 { font-size: 22px; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+  h1 img { width: 32px; height: 32px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .sites { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  a.btn { display: inline-block; background: var(--accent); color: #fff; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { a.btn { color: #18171c; } }
+</style>
+<main>
+  <div class="card">
+    <h1><img src="icons/icon48.png" alt="">Adaptive Agent Avatar</h1>
+    <p class="sub">Open one of these AI chats and she stands beside the chat box. Right-click her for styles and options.<br>
+      <span lang="zh-CN">打开下面任一 AI 聊天网站，她就会站在输入框旁边。右键点她可以换风格和设置。</span></p>
+    <div class="sites">
+      <a class="btn" href="https://chatgpt.com/">ChatGPT</a>
+      <a class="btn" href="https://claude.ai/">Claude</a>
+      <a class="btn" href="https://www.doubao.com/chat/">豆包 Doubao</a>
+      <a class="btn" href="https://www.dola.com/chat/">Dola</a>
+      <a class="btn" href="https://www.kimi.com/">Kimi</a>
+      <a class="btn" href="https://chat.qwen.ai/">Qwen</a>
+      <a class="btn" href="https://www.qianwen.com/chat">千问 Qianwen</a>
+      <a class="btn" href="https://yuanbao.tencent.com/chat">元宝 Yuanbao</a>
+    </div>
+  </div>
+</main>
+</html>

@@ -1,0 +1,19 @@
+# Text files are stored with LF and checked out as the platform likes, except Windows batch files,
+# which need CRLF (cmd.exe misreads labels and blocks in LF files), and shell scripts, which need LF
+# everywhere (bash fails on CRLF, even when the folder was checked out on Windows and copied to a Mac).
+* text=auto
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.command text eol=lf
+*.sh text eol=lf
+gradlew text eol=lf
+
+# Never touched as text
+*.webm binary
+*.webp binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.jar binary
+*.onnx binary
+*.onnx_data binary

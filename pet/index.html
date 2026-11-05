@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Only our own script; pictures are embedded (data:), clips are loaded from pet://app/media/ and
+     played as blob: URLs. Nothing else can load. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src data:; media-src blob:; connect-src 'self'">
+<title>Avatar pet</title>
+<style>html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }</style>
+</head>
+<body>
+<!-- build/payload.js: the avatar mod (mods/30-avatar.js) with its pictures and settings, written by
+     the watcher whenever the mods change. -->
+<script src="payload.js"></script>
+</body>
+</html>

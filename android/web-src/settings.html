@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- The app's setup screen (MainActivity shows it; settings.js talks to the app through window.App). -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self'">
+<title>AI Avatar</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f4f1; --card: #ffffff; --text: #1d1d1f; --muted: #6b6b73; --line: #e6e4df;
+    --accent: #6b4fd8; --accent-soft: #efebfd; --on: #1f9d55; --on-soft: #e3f5ea; --off: #b4483c; --off-soft: #fbe9e7;
+    --track: #d9d6cf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141318; --card: #1f1e25; --text: #ecebf0; --muted: #a3a1ad; --line: #2f2d36;
+      --accent: #a594f9; --accent-soft: #2b2640; --on: #52c483; --on-soft: #1d3326; --off: #ef8a7d; --off-soft: #3a2220;
+      --track: #3b3943;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 15px/1.5 system-ui, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 28px 16px 40px; }
+  .zh { color: var(--muted); font-size: 13px; }
+
+  /* Header: a few of her experts, overlapping */
+  header { text-align: center; padding: 8px 0 18px; }
+  .faces { display: flex; justify-content: center; margin-bottom: 14px; }
+  .faces img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; object-position: top;
+    border: 3px solid var(--bg); background: var(--accent-soft); margin-left: -14px; }
+  .faces img:first-child { margin-left: 0; }
+  .faces img.main { width: 76px; height: 76px; margin-top: -9px; z-index: 1; }
+  h1 { font-size: 26px; margin: 0; letter-spacing: -0.3px; }
+  header p { margin: 6px auto 0; max-width: 420px; color: var(--muted); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; margin-top: 14px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin: 0 0 12px; font-weight: 650; }
+
+  /* Status */
+  .status { display: flex; align-items: center; gap: 12px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-weight: 650; }
+  .pill::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+  .pill.on { color: var(--on); background: var(--on-soft); }
+  .pill.off { color: var(--off); background: var(--off-soft); }
+  .status .what { flex: 1; font-size: 14px; color: var(--muted); }
+
+  button { font: inherit; border: 0; cursor: pointer; }
+  .btn { display: block; width: 100%; padding: 13px 16px; border-radius: 14px; font-weight: 650; margin-top: 12px; }
+  .btn.primary { background: var(--accent); color: #fff; }
+  @media (prefers-color-scheme: dark) { .btn.primary { color: #141318; } }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn.danger { background: var(--off-soft); color: var(--off); }
+  .note { font-size: 13px; color: var(--muted); margin: 10px 2px 0; }
+  ol.steps { margin: 12px 0 0; padding-left: 20px; }
+  ol.steps li { margin: 6px 0; }
+
+  /* Apps */
+  .apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .app { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px;
+    border-radius: 14px; background: var(--bg); border: 1px solid var(--line); color: var(--text); text-align: left; }
+  .app b { font-weight: 650; }
+  .app small { display: block; color: var(--muted); font-size: 12px; }
+  .app .go { color: var(--accent); font-size: 18px; }
+
+  /* Settings rows */
+  .row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; padding-top: 2px; }
+  .row .label { flex: 1; }
+  .row .label small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.4; margin-top: 2px; }
+  .switch { position: relative; width: 50px; height: 30px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--track); transition: background .2s; }
+  .switch span::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+  .switch input:checked + span { background: var(--accent); }
+  .switch input:checked + span::after { transform: translateX(20px); }
+  .size { width: 100%; margin-top: 10px; accent-color: var(--accent); }
+  .size-row { display: block; }
+  .size-row .top { display: flex; justify-content: space-between; }
+  .size-row output { color: var(--accent); font-weight: 650; }
+
+  /* Performance */
+  .perf { margin: 0; padding: 0; list-style: none; font-size: 14px; }
+  .perf li { padding: 6px 0; border-top: 1px dashed var(--line); }
+  .perf li:first-child { border-top: 0; }
+  .link { background: none; color: var(--accent); padding: 8px 0 0; font-weight: 600; }
+
+  footer { margin-top: 18px; font-size: 12.5px; color: var(--muted); padding: 0 4px; }
+  footer p { margin: 8px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="faces">
+      <img src="img/chef.webp" alt="">
+      <img src="img/doctor.webp" alt="">
+      <img class="main" src="img/casual.webp" alt="">
+      <img src="img/programmer.webp" alt="">
+      <img src="img/astronaut.webp" alt="">
+    </div>
+    <h1>AI Avatar</h1>
+    <p data-t="tagline"></p>
+  </header>
+
+  <section class="card" id="status-card">
+    <div class="status">
+      <span class="pill" id="pill"></span>
+      <span class="what" id="what"></span>
+    </div>
+    <div id="off-part" hidden>
+      <p class="note" data-t="allowOnce"></p>
+      <button class="btn primary" data-act="openAccessibility" data-t="switchOn"></button>
+      <p class="note" data-t="restricted"></p>
+      <button class="btn ghost" data-act="appInfo" data-t="appInfo"></button>
+    </div>
+    <div id="on-part" hidden>
+      <button class="btn danger" data-act="turnOff" data-t="turnOff"></button>
+      <p class="note" data-t="turnOffNote"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 data-t="openApp"></h2>
+    <div class="apps" id="apps"></div>
+    <p class="note" id="no-apps" data-t="noApps" hidden></p>
+    <p class="note" data-t="howTo"></p>
+  </section>
+
+  <section class="card">
+    <h2 data-t="settings"></h2>
+    <label class="row">
+      <span class="label"><span data-t="showHer"></span><small data-t="showHerNote"></small></span>
+      <span class="switch"><input type="checkbox" id="enabled"><span></span></span>
+    </label>
+    <label class="row">
+      <span class="label"><span data-t="always"></span><small data-t="alwaysNote"></small></span>
+      <span class="switch"><input type="checkbox" id="always"><span></span></span>
+    </label>
+    <div class="row size-row">
+      <div class="top"><span data-t="size"></span><output id="size-out"></output></div>
+      <input class="size" type="range" id="size" min="60" max="140" step="10">
+    </div>
+    <div class="row">
+      <span class="label"><span data-t="where"></span><small id="where-text"></small></span>
+    </div>
+    <button class="btn ghost" data-act="dock" id="dock" data-t="dock"></button>
+  </section>
+
+  <section class="card">
+    <h2 data-t="perf"></h2>
+    <ul class="perf" id="perf"></ul>
+    <button class="link" data-act="clearStats" data-t="clear"></button>
+  </section>
+
+  <footer>
+    <p data-t="disclaimer"></p>
+    <p data-t="privacy"></p>
+  </footer>
+</main>
+<script src="settings.js"></script>
+</body>
+</html>
