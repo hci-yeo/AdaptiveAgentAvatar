@@ -352,9 +352,9 @@ git clone https://github.com/hci-yeo/AdaptiveAgentAvatar.git
 <td>
 
 如果你喜欢这个项目，欢迎赞助，帮助我们开展有偿的用户研究。<br>
-想聊聊它，欢迎扫码加入微信群。
+想聊聊它，欢迎扫码加入微信群，或给我发邮件。
 
-<a href="https://github.com/sponsors/hci-yeo"><img src="https://img.shields.io/badge/Sponsor-hci--yeo-ea4aaa?style=for-the-badge&amp;logo=githubsponsors&amp;logoColor=white" alt="在 GitHub 上赞助 hci-yeo"></a>
+<a href="https://www.paypal.com/donate/?hosted_button_id=34XU4XJMF74L8"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal&amp;logoColor=white" alt="通过 PayPal 捐赠"></a>
 <a href="mailto:golfyeo2019@gmail.com"><img src="https://img.shields.io/badge/Contact_HCI--YEO-golfyeo2019%40gmail.com-EA4335?style=for-the-badge&amp;logo=gmail&amp;logoColor=white" alt="联系 HCI-YEO：golfyeo2019@gmail.com"></a>
 
 </td>

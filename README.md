@@ -31,19 +31,19 @@ We know a human-like character makes an AI feel friendlier and easier to talk to
 <td width="18%"><img src="docs/images/android-demo.gif" alt="On an Android phone in ChatGPT: asking how to cook fried rice brings the chef, then asking how to exercise brings the athlete"></td>
 </tr>
 <tr>
-<td align="center"><b>In Codex:</b> a pasta recipe brings the chef, a fever the doctor, and the Moon the astronaut</td>
-<td align="center"><b>In Doubao:</b> Mandy changes outfits: gamer for games, musician for guitar, teacher for maths</td>
+<td align="center"><b>In Codex:</b> pasta brings the chef, a fever the doctor, the Moon the astronaut</td>
+<td align="center"><b>In Doubao:</b> Mandy dresses as a gamer, then a musician, then a teacher</td>
 <td align="center"><b>In Android ChatGPT</b></td>
 </tr>
 </table>
 
-This isn't really a pet. She can also float on desktop like a pet, but she doesn't ***yet*** do pet things like wander around or play.
+This isn't really a pet. She can float on desktop like one, but doesn't ***yet*** wander around or play.
 
 **Private by design.** The avatar **never** connects to the internet. A small AI model (Google's EmbeddingGemma, 130 MB) picks the topic of each question on your own processor, in tens of milliseconds, and your questions are never saved or sent anywhere. We chose a small model so it's fast on any PC; it can be swapped for a bigger one to pick topics more accurately. The desktop pet runs in a locked-down sandbox with no network or file access.
 
 > **Unofficial and not affiliated with ByteDance, OpenAI, Tencent, Alibaba, Anthropic, Moonshot AI (Kimi), Cursor or DeepSeek.** It modifies the app’s page on your PC, which the app’s terms may not allow. Use at your own risk.
 >
-> This is an early test version. Please try it, and report bugs or suggest improvements. You can turn off the rainbow ring.
+> Early test version: please try it and report bugs or ideas. The rainbow ring can be turned off.
 
 ## Quick start
 
@@ -106,7 +106,7 @@ This project grew out of our study:
 | Adaptive | 5.37 | **5.63** | **5.64** | **5.44** | **5.30** | 5.36 | **5.33** |
 | Multiple | **5.62** | 5.42 | 5.51 | 5.39 | 5.17 | **5.42** | **5.33** |
 
-**Why it may not have reached significance, and what this project changes.** Besides the small sample, a short eye-tracking check with two more participants showed that people barely looked at the avatar: under 3% of their viewing time, because it sat in a corner, apart from the conversation. The paper calls for larger studies and more salient avatar cues. This project is our answer to the second part. The avatar stands right beside the chat box (or inside each reply), walks or spins in when the topic changes, shows a topic tag, and reacts while the AI thinks and writes, so she's hard to miss.
+**Why it may not have reached significance, and what this project changes.** Besides the small sample, a short eye-tracking check with two more participants showed that people barely looked at the avatar: under 3% of their viewing time, because it sat in a corner, apart from the conversation. The paper calls for larger studies and more salient avatar cues. This project is our answer to the second part. She stands right beside the chat box (or in each reply), walks or spins in when the topic changes, shows a topic tag and reacts while the AI works.
 
 <details>
 <summary>BibTeX</summary>
@@ -139,7 +139,7 @@ This project grew out of our study:
   - **Size:** Small, Normal, Large or Extra large.
   - **Where she stands:** click a corner, or **drag her** anywhere. Or put her inside the chat with **💬 In the AI's replies** (see [Avatar inside the chat](#avatar-inside-the-chat)).
   - **This app only:** switch the rainbow chat box on or off, **hide the avatar in this app**, or **🐾 Float on the desktop** (pet mode).
-- **Hide or show her quickly:** **Alt+Shift+H** in the app. While she's hidden, a small round button with her face sits by the chat box; click it to bring her back.
+- **Hide or show her quickly:** **Alt+Shift+H** in the app. While hidden, a round button with her face sits by the chat box; click it to bring her back.
 - **Pet mode:** right-click her → **🐾 Float on the desktop**. She becomes a small see-through window on your desktop, and still changes and reacts to the AI. Right-click the pet → **Back into the … window** to return her.
 - **Tray icon** (her face by the clock; Windows 11 may hide it behind the **^** arrow):
   - One line per installed app shows her state there; click it to open the app with her or hide her (for example *Doubao: closed - click to open with avatar*).
@@ -164,14 +164,14 @@ Instead of a corner, she can live **inside the conversation**, with each AI repl
 
 You don't need to install anything else: Node.js, the AI model and everything else are inside the zip.
 
-Only use AI chats in your browser? You don't need this zip: see [Browser extension (Chrome or Edge)](#browser-extension-chrome-or-edge), a separate download.
+Only use AI chats in a browser? Skip this zip and get the [browser extension](#browser-extension-chrome-or-edge).
 
 **You need:** Windows 10 or 11 (64-bit), at least one of the apps above, and about **1 GB** of free disk space.
 
 1. Open the [**Releases**](../../releases) page and download **`AdaptiveAgentAvatar-v0.1.0-win-x64.zip`** (about 470 MB).
 2. Right-click the zip → **Extract All…**, and pick a folder you'll keep, for example `C:\AdaptiveAgentAvatar`.
    - Keep the folder where it is: the shortcuts, the DeepSeek Harness plugin and the Claude Code hooks run from it. If you move it later, run `Install.bat` again: it moves all three.
-3. Double-click **`Install.bat`**. It adds an **AI Avatar** shortcut (her face) to your **Desktop** and **Start menu**, and opens her icon by the clock. Windows 11 may hide the icon behind the **^** arrow; drag it onto the taskbar to keep it visible.
+3. Double-click **`Install.bat`**. It adds an **AI Avatar** shortcut (her face) to your **Desktop** and **Start menu**, and opens her icon by the clock. Windows 11 may hide it behind the **^** arrow; drag it onto the taskbar.
 4. **From now on, start with the AI Avatar shortcut or her icon by the clock.** Click the icon for a menu of your installed apps. Each line shows the app, her state there and what a click does, for example *Doubao: closed - click to open with avatar* or *Claude: avatar off - click to turn on*.
 
 The `Start ... .bat` files in the `scripts` folder do the same, as a backup (for example if an app is missing from the menu). The sections below explain each app in more detail.
@@ -230,7 +230,7 @@ The topic model runs in its own helper process, so it can't crash DeepSeek Harne
 
 This is a browser extension for AI chat websites: ChatGPT, Claude, Doubao 豆包 (and Dola, its international version), Kimi, Qwen, Qianwen 千问 and Yuanbao 元宝, and almost any other AI chat site you add. It's a separate download: it carries its own copy of the clips and the AI model, so you don't need the zip above.
 
-1. On the [**Releases**](../../releases) page, download **`AdaptiveAgentAvatar-v0.1.0-browser-extension.zip`** (about 270 MB) and extract it.
+1. Download **`AdaptiveAgentAvatar-v0.1.0-browser-extension.zip`** (270 MB) from [**Releases**](../../releases) and extract it.
 2. Move the **`AdaptiveAgentAvatar-Extension`** folder somewhere you'll keep it, for example `C:\AdaptiveAgentAvatar-Extension`. The browser runs it from there.
 3. Open `chrome://extensions` (Chrome) or `edge://extensions` (Edge) and turn on **Developer mode**.
 4. Click **Load unpacked** and choose the `AdaptiveAgentAvatar-Extension` folder.
@@ -255,7 +255,7 @@ Tested on Samsung, Huawei and vivo. If an app update switches her off, switch he
 
 ### macOS (experimental)
 
-An early Mac version: the in-app apps (Codex, which is "ChatGPT" on the Mac, Doubao, Yuanbao, Qianwen and Cursor) and pet mode. For Macs with Apple chips (M1 and later), macOS 12 or newer. Claude and Kimi aren't supported on the Mac yet.
+An early Mac version: the in-app apps (Codex, called "ChatGPT" on the Mac, Doubao, Yuanbao, Qianwen and Cursor) and pet mode, for Apple-chip Macs (M1 or later) on macOS 12+. No Claude or Kimi on the Mac yet.
 
 **The ready-made app:**
 
@@ -300,7 +300,7 @@ The avatar works because Doubao, Codex, Yuanbao, Qianwen and Cursor currently in
 
 | Problem | Try this |
 |---|---|
-| No tray icon by the clock | Double-click **AI Avatar** on your Desktop. Windows 11 may hide the icon behind **^**. |
+| No tray icon by the clock | Double-click **AI Avatar** on your Desktop, or look behind the **^** arrow. |
 | No avatar in Doubao, Codex, Yuanbao, Qianwen or Cursor | Tray icon → click the app. Opened the normal way, an app has no avatar. |
 | No avatar on Claude | Tray icon → click **Claude** to turn her on (the desktop app, not the website). |
 | No avatar on Kimi | Tray icon → click **Kimi** to turn her on (the desktop app, not the website). |
@@ -352,9 +352,9 @@ The downloads include a modified copy of Google's [EmbeddingGemma 300M](https://
 <td>
 
 If you like this, please consider donating so we can run paid user studies.<br>
-To chat about it, join the WeChat group.
+To chat about it, join the WeChat group or email me.
 
-<a href="https://github.com/sponsors/hci-yeo"><img src="https://img.shields.io/badge/Sponsor-hci--yeo-ea4aaa?style=for-the-badge&amp;logo=githubsponsors&amp;logoColor=white" alt="Sponsor hci-yeo on GitHub"></a>
+<a href="https://www.paypal.com/donate/?hosted_button_id=34XU4XJMF74L8"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal&amp;logoColor=white" alt="Donate with PayPal"></a>
 <a href="mailto:golfyeo2019@gmail.com"><img src="https://img.shields.io/badge/Contact_HCI--YEO-golfyeo2019%40gmail.com-EA4335?style=for-the-badge&amp;logo=gmail&amp;logoColor=white" alt="Contact HCI-YEO: golfyeo2019@gmail.com"></a>
 
 </td>
