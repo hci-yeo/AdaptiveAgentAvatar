@@ -75,6 +75,15 @@ public static class ClaudeDock {
   [DllImport("user32.dll")] static extern IntPtr GetDC(IntPtr h);
   [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr h, IntPtr dc);
   [DllImport("gdi32.dll")] static extern uint GetPixel(IntPtr dc, int x, int y);
+  [StructLayout(LayoutKind.Sequential)] struct BITMAPINFOHEADER {
+    public int Size, Width, Height; public short Planes, BitCount; public int Compression, SizeImage, XPels, YPels, ClrUsed, ClrImportant;
+  }
+  [DllImport("gdi32.dll")] static extern IntPtr CreateCompatibleDC(IntPtr dc);
+  [DllImport("gdi32.dll")] static extern IntPtr CreateDIBSection(IntPtr dc, ref BITMAPINFOHEADER bmi, uint usage, out IntPtr bits, IntPtr section, uint offset);
+  [DllImport("gdi32.dll")] static extern IntPtr SelectObject(IntPtr dc, IntPtr obj);
+  [DllImport("gdi32.dll")] static extern bool DeleteObject(IntPtr obj);
+  [DllImport("gdi32.dll")] static extern bool DeleteDC(IntPtr dc);
+  [DllImport("user32.dll")] static extern bool PrintWindow(IntPtr h, IntPtr dc, uint flags);
   [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h, int attr, out RECT r, int size);
   [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h, int attr, out int v, int size);
   [DllImport("kernel32.dll")] static extern IntPtr OpenProcess(uint access, bool inherit, uint pid);
@@ -95,7 +104,14 @@ public static class ClaudeDock {
 
   // Measured inside Claude's window, kept relative to its edges (left, top, right, bottom), so she
   // moves with the window at once while it's dragged, between measurements.
-  class Layout { public double ContentL, ContentT, ContentR, ChatL, ChatB, BoxL, BoxT, BoxR, BoxB; public bool HasBox; }
+  // Cands: the boxes the chat box might be (screen pixels, best guess first); RingOk: one of them was
+  // checked against the window's own pixels (see Verify) and Box* is that one. The rainbow ring shows
+  // only then; her spot uses Box* either way (a guess a few pixels off doesn't matter for her).
+  class Layout {
+    public double ContentL, ContentT, ContentR, ChatL, ChatB, BoxL, BoxT, BoxR, BoxB; public bool HasBox;
+    public System.Collections.Generic.List<Rect> Cands = new System.Collections.Generic.List<Rect>();
+    public bool RingOk; public string Why = "";
+  }
   class Place { public string Mode = "bottom-left"; public double Fx, Fy; public int X = int.MinValue, Y = int.MinValue; public string Corner; public bool Main; }
 
   static volatile int petHandle, claudeHandle, ringHandle;
@@ -215,9 +231,24 @@ public static class ClaudeDock {
     foreach (var w in StopWords) if (n.StartsWith(w, StringComparison.OrdinalIgnoreCase)) return true;
     return false;
   }
-  // The prompt box: the edit named "Prompt", else the lowest wide edit in the window.
+  // Whether a dialog (Claude's Settings) is open over the page, as of the last FindPrompt. While it
+  // is, Claude hides the rest of the page from screen readers, chat box included, so the box can't
+  // be found; it is still where it was, half covered, so she stays put and the ring hides.
+  static volatile bool dialogOpen;
+  // Whether element e is inside element box (looking up to the page).
+  static bool InsideOf(AutomationElement e, AutomationElement box) {
+    var walker = TreeWalker.ControlViewWalker;
+    for (AutomationElement p = walker.GetParent(e); p != null; p = walker.GetParent(p)) {
+      if (Automation.Compare(p, box)) return true;
+      if (p.Current.ControlType == ControlType.Document) return false;
+    }
+    return false;
+  }
+  // The prompt box: the edit named "Prompt", else the lowest wide edit in the window (not one in a
+  // dialog: Settings' "What should Claude call you?" field took the ring).
   static AutomationElement FindPrompt(AutomationElement win) {
     var editType = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit);
+    dialogOpen = false;
     // Kimi keeps its Work and Chat pages both loaded, and both chat boxes say they're on screen: take
     // the one in front (what's at its centre is the box itself, or inside it).
     if (IsKimi) { var front = FrontEdit(win, editType); if (front != null) return front; }
@@ -226,14 +257,21 @@ public static class ClaudeDock {
     // Otherwise the lowest wide text field. Claude's Chat page names its box "Write your prompt to
     // Claude" (a ProseMirror editor): that one wins outright. Its sidebar's "Rename" field (renaming a
     // chat) can sit lower and is never the chat box.
-    AutomationElement best = null; double bottom = double.MinValue;
+    var windowType = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window);
+    AutomationElement best = null, dialog = null; double bottom = double.MinValue; bool lookedForDialog = false;
     foreach (AutomationElement e in win.FindAll(TreeScope.Descendants, editType)) {
       Rect r = e.Current.BoundingRectangle;
       if (r.IsEmpty || r.Width <= 250) continue;
       if (!IsKimi && (e.Current.ClassName ?? "").Contains("ProseMirror")) return e;
       if (e.Current.Name == "Rename") continue;
+      if (!IsKimi) {
+        if (!lookedForDialog) { dialog = win.FindFirst(TreeScope.Descendants, windowType); lookedForDialog = true; }
+        if (dialog != null && InsideOf(e, dialog)) continue;
+      }
       if (r.Bottom > bottom) { best = e; bottom = r.Bottom; }
     }
+    if (!IsKimi && best == null && !lookedForDialog) dialog = win.FindFirst(TreeScope.Descendants, windowType);
+    dialogOpen = best == null && dialog != null;
     return best;
   }
   // Which chat is open: so the watcher keeps each chat's questions apart (the pet's topic for one chat
@@ -315,6 +353,27 @@ public static class ClaudeDock {
     }
     return wrap;
   }
+  // The chat box's outline as its own element: on the Chat page, the element that paints the box
+  // (a "bg-surface-..." background), the nearest such ancestor of the prompt box that holds it and is
+  // still about chat-box size. Only the raw tree has it (the normal view leaves plain boxes out), and
+  // only the outline is right on both Chat page layouts: on a new chat the + and microphone buttons sit
+  // inside the box, in a conversation the + / model row sits below it, and going by the buttons got
+  // one of the two wrong. Empty when there's none (the guesses in Measure are used then).
+  static Rect OutlineBox(AutomationElement edit, Rect er, double sc) {
+    try {
+      var raw = TreeWalker.RawViewWalker;
+      AutomationElement a = raw.GetParent(edit);
+      for (int i = 0; i < 8 && a != null; i++, a = raw.GetParent(a)) {
+        Rect r = a.Current.BoundingRectangle;
+        if (r.IsEmpty) continue;
+        if (r.Width > er.Width + 300 * sc || r.Height > er.Height + 260 * sc) break;
+        if (r.Left > er.Left + 1 || r.Right < er.Right - 1 || r.Top > er.Top + 1 || r.Bottom < er.Bottom - 1) continue;
+        string cls = a.Current.ClassName ?? "";
+        foreach (string t in cls.Split(' ')) if (t.StartsWith("bg-surface")) return r;
+      }
+    } catch (ElementNotAvailableException) { }
+    return Rect.Empty;
+  }
   // Where the chat box is: its row of controls (level with the prompt box) plus any row right under
   // it that's no wider (a toolbar inside the box), plus the padding to its edge (Code page); or the
   // framed box that wraps the text area and a row of buttons under it (Chat page): the biggest
@@ -333,18 +392,20 @@ public static class ClaudeDock {
     if (dbg != null) dbg.AppendLine("prompt '" + edit.Current.Name + "' " + er + "  column " + cr);
     // A long prompt scrolls inside the box (its parent has a maximum height and scrolls): the prompt's
     // own rectangle is then all of its text, reaching far above the box, and the ring grew with it.
-    // Only the part showing in that scroll area counts.
-    AutomationElement scroller = walker.GetParent(edit);
-    if (scroller != null) {
-      Rect sr = scroller.Current.BoundingRectangle;
-      if (!sr.IsEmpty && sr.Height >= 20 && (er.Top < sr.Top - 2 || er.Bottom > sr.Bottom + 2)) {
+    // Only the part showing in that scroll area counts. The scroll area is found in the raw tree: on
+    // the Chat page the normal view skips it, and the prompt's parent there is the whole bottom area
+    // (banner and buttons too), which didn't cut the prompt down to the box.
+    try {
+      AutomationElement up = TreeWalker.RawViewWalker.GetParent(edit);
+      for (int i = 0; i < 4 && up != null; i++, up = TreeWalker.RawViewWalker.GetParent(up)) {
+        Rect sr = up.Current.BoundingRectangle;
+        if (sr.IsEmpty || sr.Height < 20 || (er.Top >= sr.Top - 2 && er.Bottom <= sr.Bottom + 2)) continue;
         double sTop = Math.Max(er.Top, sr.Top), sBottom = Math.Min(er.Bottom, sr.Bottom);
-        if (sBottom - sTop >= 20) {
-          er = new Rect(er.Left, sTop, er.Width, sBottom - sTop);
-          if (dbg != null) dbg.AppendLine("prompt scrolls; showing " + er);
-        }
+        if (sBottom - sTop < 20) continue;
+        er = new Rect(er.Left, sTop, er.Width, sBottom - sTop);
+        if (dbg != null) dbg.AppendLine("prompt scrolls; showing " + er);
       }
-    }
+    } catch (ElementNotAvailableException) { }
     double left = er.Left, bottom = er.Bottom;
     var parts = new System.Collections.Generic.List<Rect>();
     foreach (AutomationElement c in column.FindAll(TreeScope.Children, Condition.TrueCondition)) {
@@ -367,6 +428,7 @@ public static class ClaudeDock {
       if (k.Top >= bb - 4 && k.Top <= bb + 2 * pad && k.Left >= bl - 4 && k.Right <= br + 4) bb = Math.Max(bb, k.Bottom);
     bl -= pad; bt -= pad; br += pad; bb += pad;
     if (dbg != null) dbg.AppendLine("row box " + bl + "," + bt + " .. " + br + "," + bb);
+    Rect rowBox = new Rect(bl, bt, Math.Max(0, br - bl), Math.Max(0, bb - bt)), framedBox = Rect.Empty;
     Rect frame = Rect.Empty; AutomationElement frameEl = null;
     AutomationElement anc = walker.GetParent(edit);
     for (int i = 0; i < 6 && anc != null; i++) {
@@ -385,10 +447,21 @@ public static class ClaudeDock {
       bl = frame.Left; bt = frame.Top; br = frame.Right; bb = Math.Min(frame.Bottom, inside + pad);
       if (!stop) foreach (AutomationElement b in frameEl.FindAll(TreeScope.Descendants, buttons)) if (IsStop(b)) { stop = true; break; }
       if (dbg != null) dbg.AppendLine("framed box " + bl + "," + bt + " .. " + br + "," + bb);
+      framedBox = new Rect(bl, bt, Math.Max(0, br - bl), Math.Max(0, bb - bt));
+    }
+    // Best of all: the box's own outline, when the page shows it as an element (see OutlineBox).
+    Rect outline = OutlineBox(edit, er, sc);
+    if (!outline.IsEmpty) {
+      bl = outline.Left; bt = outline.Top; br = outline.Right; bb = outline.Bottom;
+      if (dbg != null) dbg.AppendLine("outline box " + outline);
     }
     RECT f;
     if (DwmGetWindowAttribute(new IntPtr(h), DWMWA_EXTENDED_FRAME_BOUNDS, out f, Marshal.SizeOf(typeof(RECT))) != 0) GetWindowRect(new IntPtr(h), out f);
     var lo = new Layout();
+    // Which of these is really the box is settled by Verify, against the window's pixels.
+    if (!outline.IsEmpty) lo.Cands.Add(outline);
+    if (!framedBox.IsEmpty) lo.Cands.Add(framedBox);
+    lo.Cands.Add(rowBox);
     lo.ContentL = cr.Left - f.L; lo.ContentT = cr.Top - f.T; lo.ContentR = f.R - cr.Right;
     lo.ChatL = left - f.L; lo.ChatB = f.B - bottom;
     lo.BoxL = bl - f.L; lo.BoxT = bt - f.T; lo.BoxR = f.R - br; lo.BoxB = f.B - bb;
@@ -437,11 +510,135 @@ public static class ClaudeDock {
     RECT f;
     if (DwmGetWindowAttribute(new IntPtr(h), DWMWA_EXTENDED_FRAME_BOUNDS, out f, Marshal.SizeOf(typeof(RECT))) != 0) GetWindowRect(new IntPtr(h), out f);
     var lo = new Layout();
+    lo.Cands.Add(new Rect(bl, bt, Math.Max(0, br - bl), Math.Max(0, bb - bt)));
+    if (wrap != null) { Rect w0 = wrap.Current.BoundingRectangle; if (!w0.IsEmpty) lo.Cands.Add(w0); }
     lo.ContentL = cr.Left - f.L; lo.ContentT = cr.Top - f.T; lo.ContentR = f.R - cr.Right;
     lo.ChatL = bl - f.L; lo.ChatB = f.B - bb;
     lo.BoxL = bl - f.L; lo.BoxT = bt - f.T; lo.BoxR = f.R - br; lo.BoxB = f.B - bb;
     lo.HasBox = br - bl > 100;
     return lo;
+  }
+
+  // ---- Checking the box against the window's own pixels ----
+  // The candidates come from the accessibility tree, and each new page layout or app update has broken
+  // some guess (a banner above the box, buttons below it, a long prompt, a dialog). So before the ring
+  // shows, the window is drawn into a bitmap (PrintWindow: its own content only, never the ring or
+  // anything over it) and a candidate counts only if a real edge runs along all four of its sides
+  // within 2 px: a border line, or a change of background. The first such candidate wins; with none,
+  // the ring hides. This runs again only when the candidates or the window's size change, or, while
+  // nothing matched, now and then (the page may have been mid-animation). If the capture comes back
+  // blank (a window this can't draw), nothing can be checked and the first candidate is trusted.
+  static string verifiedKey = null, verifiedWhy = "";
+  static Rect verifiedRel = Rect.Empty;   // relative to the window's top-left corner
+  static bool verifiedOk;
+  static DateTime retryAt = DateTime.MinValue;
+  static int retries;
+
+  static void Verify(Layout lo, int h, double sc, StringBuilder dbg) {
+    RECT wr; GetWindowRect(new IntPtr(h), out wr);
+    var key = new StringBuilder((wr.R - wr.L) + "x" + (wr.B - wr.T));
+    foreach (Rect c in lo.Cands)
+      key.Append("|" + (int)Math.Round(c.Left - wr.L) + "," + (int)Math.Round(c.Top - wr.T) + "," + (int)Math.Round(c.Width) + "," + (int)Math.Round(c.Height));
+    string k = key.ToString();
+    if (dbg != null || k != verifiedKey || (!verifiedOk && DateTime.UtcNow >= retryAt)) {
+      if (k != verifiedKey) retries = 0;
+      Rect found;
+      verifiedWhy = CheckPixels(lo.Cands, h, wr, sc, dbg, out found);
+      verifiedKey = k; verifiedOk = !found.IsEmpty;
+      verifiedRel = verifiedOk ? new Rect(found.Left - wr.L, found.Top - wr.T, found.Width, found.Height) : Rect.Empty;
+      if (!verifiedOk) { retryAt = DateTime.UtcNow.AddMilliseconds(Math.Min(5000, 500 << Math.Min(retries, 4))); retries++; }
+    }
+    lo.RingOk = verifiedOk; lo.Why = verifiedWhy;
+    if (!verifiedOk) return;
+    RECT f;
+    if (DwmGetWindowAttribute(new IntPtr(h), DWMWA_EXTENDED_FRAME_BOUNDS, out f, Marshal.SizeOf(typeof(RECT))) != 0) f = wr;
+    double l = wr.L + verifiedRel.Left, t = wr.T + verifiedRel.Top;
+    lo.BoxL = l - f.L; lo.BoxT = t - f.T; lo.BoxR = f.R - (l + verifiedRel.Width); lo.BoxB = f.B - (t + verifiedRel.Height);
+    lo.HasBox = true;
+  }
+
+  // Whether a candidate is chat-box sized and inside the window at all.
+  static string Insane(Rect c, RECT wr, double sc) {
+    if (c.IsEmpty || c.Width < 150 * sc || c.Height < 24 * sc) return "too small";
+    if (c.Height > 0.9 * (wr.B - wr.T) || c.Width > wr.R - wr.L) return "too big";
+    if (c.Left < wr.L - 2 || c.Top < wr.T - 2 || c.Right > wr.R + 2 || c.Bottom > wr.B + 2) return "outside the window";
+    return null;
+  }
+
+  // The window drawn into a bitmap, then each candidate looked at; see above.
+  static string CheckPixels(System.Collections.Generic.List<Rect> cands, int h, RECT wr, double sc, StringBuilder dbg, out Rect found) {
+    found = Rect.Empty;
+    int w = wr.R - wr.L, ht = wr.B - wr.T;
+    var sane = new System.Collections.Generic.List<Rect>();
+    for (int n = 0; n < cands.Count; n++) {
+      string bad = Insane(cands[n], wr, sc);
+      if (dbg != null) dbg.AppendLine("candidate " + n + " " + cands[n] + (bad != null ? ": " + bad : ""));
+      if (bad == null) sane.Add(cands[n]);
+    }
+    if (sane.Count == 0) return "no chat-box-sized candidate";
+    if (w <= 0 || ht <= 0 || (long)w * ht > 40000000L) { found = sane[0]; return "can't capture this window; trusting the first candidate"; }
+    IntPtr screen = GetDC(IntPtr.Zero), mem = CreateCompatibleDC(screen);
+    ReleaseDC(IntPtr.Zero, screen);
+    var bi = new BITMAPINFOHEADER(); bi.Size = 40; bi.Width = w; bi.Height = -ht; bi.Planes = 1; bi.BitCount = 32;
+    IntPtr bits, bmp = CreateDIBSection(mem, ref bi, 0, out bits, IntPtr.Zero, 0);
+    if (bmp == IntPtr.Zero || bits == IntPtr.Zero) { DeleteDC(mem); found = sane[0]; return "no bitmap; trusting the first candidate"; }
+    IntPtr old = SelectObject(mem, bmp);
+    try {
+      if (!PrintWindow(new IntPtr(h), mem, 2 /* PW_RENDERFULLCONTENT */)) { found = sane[0]; return "window not drawn; trusting the first candidate"; }
+      Func<int, int, int> lum = (x, y) => {
+        if (x < 0 || y < 0 || x >= w || y >= ht) return -1;
+        int p = Marshal.ReadInt32(bits, (y * w + x) * 4);
+        return (299 * ((p >> 16) & 255) + 587 * ((p >> 8) & 255) + 114 * (p & 255)) / 1000;
+      };
+      // A blank capture: every pixel sampled across the whole window the same. (Not just the box's
+      // area: an empty chat box is all one colour inside.)
+      int first = -2; bool blank = true;
+      for (int k = 0; k < 400 && blank; k++) {
+        int v = lum((int)(w * ((k % 20) + 0.5) / 20), (int)(ht * ((k / 20) + 0.5) / 20));
+        if (first == -2) first = v; else if (v != first) blank = false;
+      }
+      if (blank) { found = sane[0]; return "blank capture; trusting the first candidate"; }
+      string why = "no border along any candidate";
+      for (int n = 0; n < sane.Count; n++) {
+        if (dbg != null) dbg.AppendLine(" candidate " + cands.IndexOf(sane[n]) + ":");
+        if (HasEdges(sane[n], wr, lum, dbg) && found.IsEmpty) { found = sane[n]; why = "border found (candidate " + cands.IndexOf(sane[n]) + ")"; }
+        if (!found.IsEmpty && dbg == null) break;   // (the probe looks at them all)
+      }
+      return why;
+    } finally { SelectObject(mem, old); DeleteObject(bmp); DeleteDC(mem); }
+  }
+
+  // Whether an edge runs along all four sides of c: across each side, the brightness 6 px outside
+  // to 6 px inside (the median along its middle half, away from the round corners); an edge is a
+  // line within 2 px that differs from both sides, or the two sides differing.
+  static bool HasEdges(Rect c, RECT wr, Func<int, int, int> lum, StringBuilder dbg) {
+    int l = (int)Math.Round(c.Left - wr.L), t = (int)Math.Round(c.Top - wr.T), r = (int)Math.Round(c.Right - wr.L), b = (int)Math.Round(c.Bottom - wr.T);
+    string[] names = { "top", "bottom", "left", "right" };
+    bool all = true;
+    for (int e = 0; e < 4; e++) {
+      var prof = new int[13];
+      for (int d = -6; d <= 6; d++) {
+        var v = new System.Collections.Generic.List<int>();
+        for (int k = 0; k < 24; k++) {
+          double fr = 0.25 + 0.5 * k / 23.0; int x, y;
+          if (e == 0) { x = (int)(l + fr * (r - l)); y = t + d; }
+          else if (e == 1) { x = (int)(l + fr * (r - l)); y = b - 1 - d; }
+          else if (e == 2) { y = (int)(t + fr * (b - t)); x = l + d; }
+          else { y = (int)(t + fr * (b - t)); x = r - 1 - d; }
+          int q = lum(x, y); if (q >= 0) v.Add(q);
+        }
+        if (v.Count == 0) return false;
+        v.Sort(); prof[d + 6] = v[v.Count / 2];
+      }
+      int[] outs = { prof[0], prof[1], prof[2], prof[3] }, ins = { prof[9], prof[10], prof[11], prof[12] };
+      Array.Sort(outs); Array.Sort(ins);
+      int o = (outs[1] + outs[2]) / 2, i = (ins[1] + ins[2]) / 2, mid = (o + i) / 2, line = prof[4];
+      for (int j = 5; j <= 8; j++) if (Math.Abs(prof[j] - mid) > Math.Abs(line - mid)) line = prof[j];
+      bool ok = Math.Abs(o - i) >= 4 || (Math.Abs(line - o) >= 4 && Math.Abs(line - i) >= 4);
+      if (dbg != null) dbg.AppendLine("  " + names[e] + (ok ? " edge" : " NO EDGE") + ": " + string.Join(" ", prof));
+      if (!ok) all = false;
+    }
+    return all;
   }
 
   static bool Far(Layout a, Layout b, double by) {
@@ -463,7 +660,13 @@ public static class ClaudeDock {
     if (edit == null) return "no prompt box";
     bool stop;
     Layout lo = Measure(edit, h.ToInt32(), out stop, dbg);
-    dbg.AppendLine("stop " + stop + ", has box " + (lo != null && lo.HasBox));
+    if (lo != null) Verify(lo, h.ToInt32(), GetDpiForWindow(h) / 96.0, dbg);
+    dbg.AppendLine("stop " + stop + ", has box " + (lo != null && lo.HasBox) + ", ring " + (lo != null && lo.RingOk ? "shows" : "hidden") + (lo != null ? " (" + lo.Why + ")" : ""));
+    if (lo != null && lo.RingOk) {
+      RECT f;
+      if (DwmGetWindowAttribute(h, DWMWA_EXTENDED_FRAME_BOUNDS, out f, Marshal.SizeOf(typeof(RECT))) != 0) GetWindowRect(h, out f);
+      dbg.AppendLine("ring box " + (f.L + lo.BoxL) + "," + (f.T + lo.BoxT) + " .. " + (f.R - lo.BoxR) + "," + (f.B - lo.BoxB));
+    }
     return dbg.ToString();
   }
 
@@ -484,7 +687,7 @@ public static class ClaudeDock {
       try {
         if (winFor != h) { win = AutomationElement.FromHandle(new IntPtr(h)); winFor = h; edit = null; }
         // Look for the prompt box again every second: Claude swaps pages (Code, Chat) in the same window.
-        if (edit == null || --refind <= 0) {
+        if ((edit == null && !dialogOpen) || --refind <= 0) {
           edit = FindPrompt(win); refind = 4;
           // Kimi shows no chat box until its accessibility is woken (at most every 3 s while missing).
           if (edit == null && IsKimi && (DateTime.UtcNow - wokeAt).TotalSeconds > 3) { WakeAccessibility(new IntPtr(h)); wokeAt = DateTime.UtcNow; }
@@ -492,8 +695,13 @@ public static class ClaudeDock {
         bool stop = false;
         Layout lo = edit == null ? null : Measure(edit, h, out stop, null);
         // While Claude swaps pages the prompt box is briefly gone: she stays put for up to 2 s
-        // instead of jumping to a fallback spot.
-        if (lo == null) { edit = null; refind = 0; if (++lost > 8) layout = null; }
+        // instead of jumping to a fallback spot. While a dialog is open she stays put until it closes
+        // (looking again once a second), and the ring hides (it would sit over the dialog).
+        if (lo == null && dialogOpen) {
+          edit = null; lost = 0;
+          if (boxWas == true) { boxWas = false; Say("{\"box\":false}"); }
+        }
+        else if (lo == null) { edit = null; refind = 0; if (++lost > 8) layout = null; }
         else {
           lost = 0;
           // A big jump (Claude laying out a page it's switching to, while it slides in) waits until two
@@ -501,11 +709,12 @@ public static class ClaudeDock {
           double sc = GetDpiForWindow(new IntPtr(h)) / 96.0;
           Layout cur = layout;
           if (cur != null && Far(lo, cur, 40 * sc)) {
-            if (cand != null && !Far(lo, cand, 4 * sc)) { if (++candN >= 2) { layout = lo; cand = null; } }
+            if (cand != null && !Far(lo, cand, 4 * sc)) { if (++candN >= 2) { Verify(lo, h, sc, null); layout = lo; cand = null; } }
             else { cand = lo; candN = 1; }
-          } else { layout = lo; cand = null; }
+          } else { Verify(lo, h, sc, null); layout = lo; cand = null; }
           lo = layout;
-          if (boxWas != lo.HasBox) { boxWas = lo.HasBox; Say(lo.HasBox ? "{\"box\":true}" : "{\"box\":false}"); }
+          // The ring shows only on a box checked against the window's pixels (see Verify).
+          if (boxWas != lo.RingOk) { boxWas = lo.RingOk; Say(lo.RingOk ? "{\"box\":true}" : "{\"box\":false}"); }
           // Which chat is open, once a second; a change is reported ({"chat":"..."}).
           if (--chatIn <= 0) {
             chatIn = 4;
@@ -589,7 +798,7 @@ public static class ClaudeDock {
   static void PlaceRing(IntPtr pet, RECT f, double s, bool restacked, IntPtr claude) {
     IntPtr ring = new IntPtr(ringHandle);
     Layout lo = layout;
-    if (ring == IntPtr.Zero || !IsWindow(ring) || lo == null || !lo.HasBox) return;
+    if (ring == IntPtr.Zero || !IsWindow(ring) || lo == null || !lo.RingOk) return;
     int p = (int)Math.Round(RING_PAD * s);
     int x = (int)Math.Round(f.L + lo.BoxL) - p, y = (int)Math.Round(f.T + lo.BoxT) - p;
     int w = (int)Math.Round((f.R - lo.BoxR) - (f.L + lo.BoxL)) + 2 * p, hh = (int)Math.Round((f.B - lo.BoxB) - (f.T + lo.BoxT)) + 2 * p;
