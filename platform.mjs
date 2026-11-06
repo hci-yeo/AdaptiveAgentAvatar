@@ -1,7 +1,7 @@
 // What differs between Windows and macOS, in one place: finding an app, listing its processes,
 // starting it with switches, closing it, where settings live, and the "only one watcher" lock.
 // Windows keeps its tried ways (tasklist, taskkill, a named pipe); the macOS half is new and still to
-// be checked on a real Mac (MAC-CHECKLIST.md).
+// be checked on a real Mac.
 import { execFile, execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';

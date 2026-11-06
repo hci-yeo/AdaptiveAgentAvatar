@@ -24,7 +24,7 @@
 // Pictures: mods/assets/expert-<name>.webp (embedded, ASSETS). Walk clips: mods/media/<name>_in.webm
 // and <name>_out.webm, too big to embed, so they're requested one at a time from the watcher through
 // window.__doubaoMedia (names listed in MEDIA), as is her idle loop while standing (<name>_idle.webm,
-// blinking and breathing). All are built from ..\16avatars by tools/make-experts-birefnet.py.
+// blinking and breathing). All are cut out from the original artwork's pictures and videos.
 
 const EVERYDAY_BASE = 'casual';   // who stands there for new chats and off-topic messages
 const PLAYBACK_RATE = 1.6;   // walk speed: the clips are 4 s each
@@ -41,12 +41,12 @@ const EXPERT_ZH = { casual: '日常', programmer: '程序员', chef: '厨师', d
   explorer: '探险家', traveler: '探险家', astronaut: '宇航员', engineer: '工程师', gamer: '玩家', gardener: '园艺师' };
 
 // Two avatar styles (right-click menu, remembered per app):
-//  - people: a different person for each topic, who walks out and in (..\16avatars)
+//  - people: a different person for each topic, who walks out and in
 //  - single: one person who changes outfits; she spins and fades away, and comes back in the new
-//    outfit (..\single_agent; built with --change --prefix single_: the leaving clip is the change
+//    outfit (the leaving clip is her outfit-change
 //    video forward, the arriving one the same video backward)
-//  - fish: Whale Girl (大肥鱼), a cute chibi fish girl who changes outfits the same way (..ish; built the same way with
-//    --prefix fish_ and a wider --crop). She's shown whole, head to tail, so her clips are wider and
+//  - fish: Whale Girl (大肥鱼), a cute chibi fish girl who changes outfits the same way (cut out with a
+//    wider crop). She's shown whole, head to tail, so her clips are wider and
 //    get no edge fades (whole: true): those only hide the people's waist cut-off and crop edges.
 // Expert ids carry the style's prefix ('chef' / 'single_chef'), so both sets of pictures and clips
 // sit side by side and a change of style is just a change of expert.

@@ -4,8 +4,8 @@
 //
 //   outfit   the topic's id
 //   label    her tag over her head (labelZh: the same in Chinese)
-//   expert   who walks in for it: ..\16avatars\<expert>.jpg + mp4\<expert>_in/_out.mp4,
-//            built into mods/ by tools/make-experts.py (defaults to `outfit`)
+//   expert   who walks in for it: her pictures and clips in mods/assets and mods/media
+//            (defaults to `outfit`)
 //
 // To improve accuracy, add more example questions - real ones you'd ask are best.
 // To add a topic, copy a block.
@@ -36,7 +36,7 @@ export const TOPICS = [
     zh: ['健康', '医生', '医院', '看病', '生病', '症状', '疼', '发烧', '咳嗽', '感冒', '头痛', '吃药', '药物', '治疗', '诊断', '体检', '血压', '血糖', '失眠', '过敏', '疫苗', '手术', '怀孕', '中医', '心理健康', '焦虑', '抑郁', '受伤'],
     en: ['health', 'healthy', 'doctor', 'hospital', 'symptom', 'symptoms', 'pain', 'fever', 'cough', 'flu', 'medicine', 'medication', 'disease', 'diagnosis', 'treatment', 'allergy', 'vaccine', 'surgery', 'pregnant', 'insomnia', 'anxiety', 'depression', 'injury'] },
 
-  // No writer in 16avatars, so the teacher (language and literature) takes writing questions.
+  // There's no writer character, so the teacher (language and literature) takes writing questions.
   { outfit: 'writer', expert: 'teacher', emoji: '✍️', label: 'Writing', labelZh: '写作',
     examples: ['帮我写一篇关于秋天的作文', '帮我润色一下这段文字', '写一封求职邮件', '给我的新产品写一段宣传文案', '帮我写个短篇小说的开头',
       'Write a poem about the sea', '帮我改一下这段话让它更正式', '帮我起几个吸引人的文章标题', '写一份年终总结', '这句话的英文怎么表达更地道', 'Can you polish this paragraph?', 'Help me write a thank-you note to my teacher', 'How do I write an apology email to a client?'],

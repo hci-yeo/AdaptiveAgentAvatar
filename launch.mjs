@@ -128,7 +128,7 @@ const WIN_LAUNCH = {
 
 // macOS: each app is an .app bundle, found by its likely names (or Spotlight, by bundle id), started
 // with `open -a <app> --args <switches>` and closed with AppleScript's "quit". The names and bundle ids
-// are first guesses, to check on a real Mac (MAC-CHECKLIST.md); an app that turns out not to be
+// are first guesses, to check on a real Mac; an app that turns out not to be
 // Chromium-based (a native Mac app) can't take a debugging port and would need an overlay instead.
 function macApp(names, bundleIds, extra = {}) {
   const find = () => findMacApp(names, bundleIds);

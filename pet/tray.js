@@ -46,13 +46,13 @@ const TRAY_LOG = path.join(__dirname, 'tray-log.txt');
 const TRAY_STOP = path.join(ROOT, '.tray.stop');
 const NO_CHATBOX = path.join(ROOT, '.no-chatbox');   // written by the watcher (watcher.mjs): app ids, one per line
 const TITLE = 'AI Avatar';
-const FEEDBACK_URL = 'https://feedback.adaptive-avatar.online/';   // the survey (feedback-server/ in the dev folder)
+const FEEDBACK_URL = 'https://feedback.adaptive-avatar.online/';   // the feedback survey
 // Apps without a debugging port: Claude and Kimi get an overlay (a docked pet, its setting in .pet.json),
 // DeepSeek Harness a plugin. Each shows in the menu only when installed.
 const LOCAL = process.env.LOCALAPPDATA || '';
 const IS_MAC = process.platform === 'darwin';
 const PET_SETTINGS = path.join(ROOT, '.pet.json');
-// (macOS: the Claude/Kimi overlay helper doesn't exist there yet, so they don't show; see MAC-CHECKLIST.md.)
+// (macOS: the Claude/Kimi overlay helper doesn't exist there yet, so they don't show.)
 const DOCKED = IS_MAC ? [] : [
   { id: 'claude', name: 'Claude',   // the desktop app, an app package in WindowsApps (the overlay helper looks for that one)
     installed: () => { try { return fs.readdirSync(path.join(LOCAL, 'Packages')).some(n => /^Claude_/i.test(n)); } catch { return false; } } },
